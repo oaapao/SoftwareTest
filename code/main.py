@@ -47,3 +47,73 @@ def coin_comb(n: int, m: int, nums: List[int]) -> int:
             j += 1
         a = b.copy()
     return a[n]
+
+
+# ==========================================================================
+#  测试硬币组合程序代码请注释掉下面所有代码；测试机场跑道程序是请注释掉上面代码
+# ==========================================================================
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+def airport(n: int, points: List[Point]):
+    def quick_judge(a, b, c, d):
+        # 快速排斥实验，判断线段ab和线段cd是否不相交,不相交返回False，不能判断不相交返回True
+        if (max(a.x, b.x) < min(c.x, d.x) or
+                max(c.x, d.x) < min(a.x, b.x) or
+                max(a.y, b.y) < min(c.y, d.y) or
+                max(c.y, d.y) < min(a.y, b.y)):
+            return False
+        else:
+            return True
+
+    # 求向量ab和向量cd的叉乘
+    def xmult(a, b, c, d):
+        vectorAx = b.x - a.x
+        vectorAy = b.y - a.y
+        vectorBx = d.x - c.x
+        vectorBy = d.y - c.y
+        return vectorAx * vectorBy - vectorAy * vectorBx
+
+    def cross(a, b, c, d):
+        if not quick_judge(a, b, c, d):
+            return False
+        xmult1 = xmult(c, d, c, a)
+        xmult2 = xmult(c, d, c, b)
+        xmult3 = xmult(a, b, a, c)
+        xmult4 = xmult(a, b, a, d)
+        if xmult1 * xmult2 < 0 and xmult3 * xmult4 < 0:
+            return True
+        else:
+            return False
+
+    if n != len(points):
+        raise RuntimeError("Invalid Input")
+    lines = []
+    for i in range(n - 1):
+        lines.append([points[i], points[i + 1]])
+    lines.append([points[0], points[n - 1]])
+
+    max_dist = -1
+    for i in points:
+        for j in points:
+            if i == j:
+                continue
+            dist = round(pow(pow(i.x - j.x, 2) + pow(i.y - j.y, 2), 0.5), 6)
+            if dist < max_dist:
+                continue
+            tag = True
+            for line in lines:
+                if cross(line[0], line[1], i, j):
+                    tag = False
+                    break
+            if tag:
+                max_dist = dist
+    return max_dist
+
+
+if __name__ == '__main__':
+    data = [Point(0, 20), Point(40, 0), Point(40, 20), Point(70, 50), Point(50, 70), Point(30, 50), Point(0, 50)]
+    print(airport(7, data))
